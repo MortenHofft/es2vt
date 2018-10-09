@@ -19,29 +19,13 @@ precisionLookUp = [
 
 async function getTile(x, y, z, q, countBy, url, resolution, field) {
     url = url || defaultUrl;
-    console.log(url);
     field = field || 'location';
     resolution = typeof resolution !== 'undefined' ? resolution : 2;
 
+    let userQuery = q;
+
     var templateQuery = {
         "size": 0,
-        "query": {
-            "bool": {
-                "must": {
-                    "query_string": { "query": "", "analyze_wildcard": true }
-                },
-                "filter": {
-                    "geo_bounding_box": {
-                        // "location": {
-                        //     "top": 76.25,
-                        //     "left": 0.4375,
-                        //     "bottom": 14.84375,
-                        //     "right": 9.84375
-                        // }
-                    }
-                }
-            }
-        },
         "aggs": {
             "geo": {
                 "geohash_grid": { "field": field, "precision": 2, "size": 40000 },
@@ -54,94 +38,9 @@ async function getTile(x, y, z, q, countBy, url, resolution, field) {
         }
     };
 
-    var density = {
-        "cardinality": {
-            "field": "species.keyword",
-            "precision_threshold": 50
-        }
-    };
 
     let bb = coordinateConverter.tile2boundingBox(x, y, z);
-    let query = templateQuery;
-
-    query.aggs.geo.geohash_grid.precision = precisionLookUp[z] || 2;
-    query.query.bool.filter.geo_bounding_box[field] = {
-        "top": bb.north,
-        "left": bb.west,
-        "bottom": bb.south,
-        "right": bb.east
-    };
-    query.query.bool.must.query_string.query = q;
-    if (!q || q === '*') {
-        query.query.bool.must = {
-            "match_all": {}
-        };
-    }
-
-    if (countBy && countBy !== '') {
-        query.aggs.geo.aggs.density = density;
-        query.aggs.geo.aggs.density.cardinality.field = countBy;
-    }
-
-    let queryKey = hash(query);
-    let data = cache.get(queryKey);
-    if (!data) {
-        data = await getFromES(query, url);
-        cache.set(queryKey, data);
-    }
-    console.log(JSON.stringify(query, null, 2));
-    // console.log(data);
-    let tile = tileGenerator(data, x, y, z, 4096);
-    let buff = tile2pbf(tile);
-
-    return buff;
-}
-
-async function getFilteredTile(x, y, z, q, countBy, url, resolution, field) {
-    url = url || defaultUrl;
-    field = field || 'location';
-    resolution = typeof resolution !== 'undefined' ? resolution : 2;
-
-    let userQuery = {
-        "bool": {
-            "filter": {
-                "bool": {
-                    "must": [
-                        {
-                            "terms": {
-                                "basisOfRecord": [
-                                    "OBSERVATION"
-                                ]
-                            }
-                        }
-                    ]
-                }
-            }
-        }
-    };
-    if (!_.has(userQuery, 'bool.filter.bool.must')) {
-        _.set(userQuery, 'bool.filter.bool.must', []);
-    }
-
-    var templateQuery = {
-        "size": 0,
-        "query": userQuery,
-        "aggs": {
-            "geo": {
-                "geohash_grid": { "field": field, "precision": 2, "size": 40000 },
-                "aggs": {
-                    "geo": {
-                        "geo_centroid": { "field": field }
-                    }
-                }
-            }
-        }
-    };
-
-    let bb = coordinateConverter.tile2boundingBox(x, y, z);
-    let query = templateQuery;
-
-    query.aggs.geo.geohash_grid.precision = precisionLookUp[z] || 2;
+    templateQuery.aggs.geo.geohash_grid.precision = precisionLookUp[z] || 2;
     let geoBoundingBox = {
         geo_bounding_box: {
         }
@@ -152,15 +51,27 @@ async function getFilteredTile(x, y, z, q, countBy, url, resolution, field) {
         "bottom": bb.south,
         "right": bb.east
     };
-    query.query.bool.filter.bool.must.push(geoBoundingBox);
 
-    let queryKey = hash(query);
+    let filterArray = _.get(userQuery, 'bool.filter.bool.must');
+    let plainFilter = _.get(userQuery, 'bool.filter');
+    if (!plainFilter && !filterArray) {
+        _.set(userQuery, 'bool.filter', geoBoundingBox);
+    } else if (plainFilter && !filterArray) {
+        _.set(userQuery, 'bool.filter', {});
+        _.set(userQuery, 'bool.filter.bool.must', [plainFilter, geoBoundingBox]);
+    } else {
+        //is array
+        userQuery.bool.filter.bool.must.push(geoBoundingBox);
+    }
+    templateQuery.query = userQuery;
+
+    let queryKey = hash(templateQuery);
     let data = cache.get(queryKey);
     if (!data) {
-        data = await getFromES(query, url);
+        data = await getFromES(templateQuery, url);
         cache.set(queryKey, data);
     }
-    console.log(JSON.stringify(query, null, 2));
+    console.log(JSON.stringify(templateQuery, null, 2));
     // console.log(data);
     let tile = tileGenerator(data, x, y, z, 4096);
     let buff = tile2pbf(tile);
@@ -183,8 +94,7 @@ async function getFromES(query, url) {
 }
 
 module.exports = {
-    getTile: getTile,
-    getFilteredTile: getFilteredTile
+    getTile: getTile
 };
 
 

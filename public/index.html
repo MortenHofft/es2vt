@@ -64,8 +64,9 @@
         }
     }
 
+    var filter = JSON.stringify({"bool":{"filter":{"terms":{"gbifTaxonKey":["2600566", "2481174"]}}}});
     function addLayer() {
-        var tileString = 'http:/localhost:5000/api/query/tile/{x}/{y}/{z}.mvt?field=location&url=' + encodeURIComponent('http://es1.gbif-dev.org:9200/occurrence_v1/_search?') + '&q=' + q;
+        var tileString = 'http:/localhost:5000/api/tile/{x}/{y}/{z}.mvt?field=location&url=' + encodeURIComponent('http://es1.gbif-dev.org:9200/occurrence_v1/_search?') + '&filter=' + filter;
         map.addLayer({
             'id': 'occurrences',
             'type': 'circle',
