@@ -65,13 +65,13 @@ async function getTile(x, y, z, q, countBy, url, resolution, field) {
     }
     templateQuery.query = userQuery;
 
-    let queryKey = hash(templateQuery);
+    let queryKey = hash({templateQuery, url, countBy});
     let data = cache.get(queryKey);
     if (!data) {
         data = await getFromES(templateQuery, url);
         cache.set(queryKey, data);
     }
-    console.log(JSON.stringify(templateQuery, null, 2));
+    // console.log(JSON.stringify(templateQuery, null, 2));
     // console.log(data);
     let tile = tileGenerator(data, x, y, z, 4096);
     let buff = tile2pbf(tile);
