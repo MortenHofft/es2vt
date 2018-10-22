@@ -20,7 +20,7 @@ precisionLookUp = [
 ];
 
 async function getTile(x, y, z, q, countBy, url, resolution, field) {
-    let userQuery = q || {};
+    let userQuery = q;
     url = url || defaultUrl;
     field = field || 'location';
     resolution = typeof resolution !== 'undefined' ? resolution : 2;

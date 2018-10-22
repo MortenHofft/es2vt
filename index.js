@@ -52,7 +52,8 @@ app.get("/api/tile/point/:x/:y/:z.mvt", function (req, res) {
     })
     .catch(function (err) {
       res.status(500);
-      res.send(err);
+      console.log(err);
+      res.send(err.message);
     });
 });
 
