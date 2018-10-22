@@ -1,4 +1,4 @@
-let coordinateConverter = require('./coordinateConverter');
+let coordinateConverter = require('../util/coordinateConverter');
 
 module.exports = agg2tile;
 

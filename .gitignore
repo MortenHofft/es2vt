@@ -5,5 +5,7 @@
 # Application specific
 node_modules/
 sources/
+_tmp/
+mbtiles/
 npm-debug.log
 *.ignore.js
