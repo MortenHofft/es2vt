@@ -1,11 +1,10 @@
 const express = require("express"),
   app = express(),
-  path = require("path"),
   bodyParser = require("body-parser"),
   cookieParser = require("cookie-parser"),
   tileHelper = require("./points/tileQuery"),
-  mbtiles = require("./mbtiles/mbtiles"),
-  tileDecorator = require("./elastic-tile-decorator/tileDecorator"),
+  significantTile = require("./points/significant"),
+  //tileDecorator = require("./elastic-tile-decorator/tileDecorator"),
   port = 3000;
 
 app.use(bodyParser.json()); // to support JSON-encoded bodies
@@ -57,6 +56,36 @@ app.get("/api/tile/point/:x/:y/:z.mvt", function (req, res) {
     });
 });
 
+app.get("/api/tile/significant/:x/:y/:z.mvt", function (req, res) {
+  let filter = req.query.filter,
+    url = req.query.url,
+    countBy = req.query.countBy,
+    field = req.query.field,
+    significantField = req.query.significantField,
+    resolution = parseInt(req.query.resolution),
+    x = parseInt(req.params.x),
+    y = parseInt(req.params.y),
+    z = parseInt(req.params.z);
+
+  try {
+    filter = JSON.parse(filter);
+  } catch (err) {
+    filter = undefined;
+  }
+
+  significantTile
+    .getTile(x, y, z, filter, countBy, url, resolution, field, significantField)
+    .then(function (data) {
+      res.send(new Buffer(data, "binary"));
+    })
+    .catch(function (err) {
+      res.status(500);
+      console.log(err);
+      res.send(err.message);
+    });
+});
+
+/*
 app.get('/api/tile/raw/:source/:z/:x/:y', function (req, res) {
   mbtiles[req.params.source].getTile(req.params.z, req.params.x, req.params.y, function (err, tile, headers) {
     if (err) {
@@ -149,7 +178,7 @@ app.get('/api/tile/political/:z/:x/:y', function (req, res) {
       });
   }
 });
-
+*/
 
 app.listen(port);
 console.log("listen on part " + port);
