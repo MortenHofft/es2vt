@@ -3,8 +3,8 @@ const express = require("express"),
   bodyParser = require("body-parser"),
   cookieParser = require("cookie-parser"),
   tileHelper = require("./points/tileQuery"),
-  significantTile = require("./points/significant"),
-  tileDecorator = require("./decorator/tileDecorator"),
+  // significantTile = require("./points/significant"),
+  // tileDecorator = require("./decorator/tileDecorator"),
   port = 3000;
 
 app.use(bodyParser.json()); // to support JSON-encoded bodies
@@ -55,7 +55,7 @@ app.get("/api/tile/point/:x/:y/:z.mvt", function (req, res) {
       res.send(err.message);
     });
 });
-
+/*
 app.get("/api/tile/significant/:x/:y/:z.mvt", function (req, res) {
   let filter = req.query.filter,
     url = req.query.url,
@@ -177,6 +177,6 @@ app.get('/api/tile/political/:z/:x/:y', function (req, res) {
       });
   }
 });
-
+*/
 app.listen(port);
 console.log("listen on part " + port);

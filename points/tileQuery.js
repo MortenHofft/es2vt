@@ -25,7 +25,7 @@ async function getTile(x, y, z, q, countBy, url, resolution, field) {
     field = field || 'location';
     resolution = typeof resolution !== 'undefined' ? resolution : 2;
 
-    let tileQuery = composeTileQuery(0, 0, 0, userQuery, field);// merge tile query and user query
+    let tileQuery = composeTileQuery(x, y, z, userQuery, field);// merge tile query and user query
     let esQuery = {
         size: 0,
         query: tileQuery,
@@ -59,6 +59,7 @@ async function getTile(x, y, z, q, countBy, url, resolution, field) {
 }
 
 async function getFromES(query, endpoint) {
+    // console.log(JSON.stringify(query, null, 2));
     let response = await axios.post(endpoint, query);
     return response.data;
 }
