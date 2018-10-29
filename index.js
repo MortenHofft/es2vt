@@ -4,7 +4,7 @@ const express = require("express"),
   cookieParser = require("cookie-parser"),
   tileHelper = require("./points/tileQuery"),
   significantTile = require("./points/significant"),
-  //tileDecorator = require("./elastic-tile-decorator/tileDecorator"),
+  tileDecorator = require("./decorator/tileDecorator"),
   port = 3000;
 
 app.use(bodyParser.json()); // to support JSON-encoded bodies
