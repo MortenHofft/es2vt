@@ -85,7 +85,6 @@ app.get("/api/tile/significant/:x/:y/:z.mvt", function (req, res) {
     });
 });
 
-/*
 app.get('/api/tile/raw/:source/:z/:x/:y', function (req, res) {
   mbtiles[req.params.source].getTile(req.params.z, req.params.x, req.params.y, function (err, tile, headers) {
     if (err) {
@@ -178,7 +177,6 @@ app.get('/api/tile/political/:z/:x/:y', function (req, res) {
       });
   }
 });
-*/
 
 app.listen(port);
 console.log("listen on part " + port);
