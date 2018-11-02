@@ -6,6 +6,6 @@
 node_modules/
 sources/
 _tmp/
-mbtiles/
+mbtiles/sources
 npm-debug.log
 *.ignore.js
