@@ -5,7 +5,7 @@ const express = require("express"),
   tileHelper = require("./points/tileQuery"),
   // significantTile = require("./points/significant"),
   // tileDecorator = require("./decorator/tileDecorator"),
-  port = 3000;
+  port = 7012;
 
 app.use(bodyParser.json()); // to support JSON-encoded bodies
 app.use(
@@ -33,7 +33,7 @@ app.get("/api/tile/point/:x/:y/:z.mvt", function (req, res) {
     url = req.query.url,
     countBy = req.query.countBy,
     field = req.query.field,
-    resolution = parseInt(req.query.resolution),
+    resolution = req.query.resolution,
     x = parseInt(req.params.x),
     y = parseInt(req.params.y),
     z = parseInt(req.params.z);

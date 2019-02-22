@@ -35,9 +35,9 @@ function addFeature(e, x, y, z, extent, features) {
     var prop = {
         geometry: [ [ { x: tileCoordinates.x, y: tileCoordinates.y} ] ],
         properties: {
-            count: e.geo.count,
-            geohash: e.key,
-            precision: e.key.length
+            count: getSimpleCount(e.geo.count),
+            // geohash: e.key,
+            // precision: e.key.length
         },
         type: 1
     };
@@ -46,4 +46,12 @@ function addFeature(e, x, y, z, extent, features) {
     }
 
     features.push(prop);
+}
+
+function getSimpleCount(count) {
+    let min = 1;
+    while (min < count) {
+        min *= 10;
+    }
+    return min;
 }

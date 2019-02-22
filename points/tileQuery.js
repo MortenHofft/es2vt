@@ -12,18 +12,18 @@ let tileGenerator = require('./esAgg2tile'),
 const cache = new LRU({ max: 10000 });
 
 //9 ≈ 2.4 meters
-let precisionLookUp = [
-    3, 3, 3, 4, 4, 5, 6, 6, 6, 7, 7, 8, 9, 9, 9, 9
-];
-precisionLookUp = [
-    2, 2, 3, 4, 4, 4, 5, 5, 5, 6, 6, 7, 7, 8, 8, 9, 9, 10
-];
+let resolutions = {
+    low: [2, 2, 3, 3, 4, 4, 4, 4, 5, 5, 5, 6, 6, 7, 7, 8, 8, 9, 9, 10],
+    medium: [2, 2, 3, 3, 4, 4, 4, 5, 5, 5, 6, 6, 7, 7, 8, 8, 9, 9, 10],
+    high: [2, 2, 3, 4, 4, 4, 5, 5, 5, 6, 6, 7, 7, 8, 8, 9, 9, 10]
+}
 
 async function getTile(x, y, z, q, countBy, url, resolution, field) {
     let userQuery = q;
     url = url || defaultUrl;
     field = field || 'location';
-    resolution = typeof resolution !== 'undefined' ? resolution : 2;
+    resolution = typeof resolution !== 'undefined' ? resolution : 'medium';
+    let precisionLookUp = resolutions[resolution] || resolutions.medium;
 
     let tileQuery = composeTileQuery(x, y, z, userQuery, field);// merge tile query and user query
     let esQuery = {
