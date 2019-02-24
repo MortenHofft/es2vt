@@ -25,7 +25,7 @@ async function getdecoratedTile(options) {
         const { x, y, z, source, sourceUrl, query, esLocationField, esAggField, tileField, aggregationSize, esEndpoint, tileLayerName } = options;
         let sourceTile = getVectorTileFromDisc(x, y, z, source);
         // let sourceTile = getVectorTileFromURL(x, y, z, sourceUrl);
-        
+
         // console.log('compose tile');
         // get elastic search query to get tile information
         let tileQuery = composeTileQuery(0, 0, 0, query, esLocationField);// merge tile query and user query
@@ -77,6 +77,7 @@ function getVectorTileFromDisc(x, y, z, tileSource) {
     return new Promise(function (resolve, reject) {
         mbtiles[tileSource].getTile(z, x, y, function (err, tile, headers) {
             if (err) {
+                console.log(err);
                 reject(err);
             } else {
                 zlib.unzip(tile, {}, (err, buffer) => {
@@ -92,6 +93,7 @@ function getVectorTileFromDisc(x, y, z, tileSource) {
 
 async function getEsCounts(endpoint, esAggField, query) {
     let response = await axios.post(endpoint, query);
+    console.log(response.data);
     return response.data.aggregations['agg_terms_' + esAggField].buckets;
 }
 

@@ -4,7 +4,7 @@ const express = require("express"),
   cookieParser = require("cookie-parser"),
   tileHelper = require("./points/tileQuery"),
   // significantTile = require("./points/significant"),
-  // tileDecorator = require("./decorator/tileDecorator"),
+  tileDecorator = require("./decorator/tileDecorator"),
   port = 7012;
 
 app.use(bodyParser.json()); // to support JSON-encoded bodies
@@ -84,7 +84,8 @@ app.get("/api/tile/significant/:x/:y/:z.mvt", function (req, res) {
       res.send(err.message);
     });
 });
-
+*/
+const mbtiles = require('./mbtiles/mbtiles');
 app.get('/api/tile/raw/:source/:z/:x/:y', function (req, res) {
   mbtiles[req.params.source].getTile(req.params.z, req.params.x, req.params.y, function (err, tile, headers) {
     if (err) {
@@ -96,7 +97,7 @@ app.get('/api/tile/raw/:source/:z/:x/:y', function (req, res) {
     }
   });
 });
-
+/*
 app.get('/api/tile/decorated/:z/:x/:y', function (req, res) {
   let options = {
     x: Number(req.params.x),
@@ -123,6 +124,7 @@ app.get('/api/tile/decorated/:z/:x/:y', function (req, res) {
 
     });
 });
+*/
 
 app.get('/api/tile/political/:z/:x/:y', function (req, res) {
   let options = {
@@ -132,7 +134,7 @@ app.get('/api/tile/political/:z/:x/:y', function (req, res) {
     query: req.query.query,
     esLocationField: req.query.esLocationField || 'coordinate_point',
     esAggField: 'countryCode',
-    esEndpoint: req.query.esEndpoint || 'http://es1.gbif-dev.org:9200/gadm/_search',
+    esEndpoint: req.query.esEndpoint || 'https://es1.gbif-dev.org/gadm/_search',
     tileField: 'key',
     source: 'country',
     tileLayerName: 'country'
@@ -177,6 +179,6 @@ app.get('/api/tile/political/:z/:x/:y', function (req, res) {
       });
   }
 });
-*/
+
 app.listen(port);
 console.log("listen on part " + port);

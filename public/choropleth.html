@@ -92,7 +92,7 @@
     });
 
     function addLayer() {
-        var tileString = 'http://localhost:3000/api/tile/political/{z}/{x}/{y}?query=' + query;
+        var tileString = 'http://localhost:7012/api/tile/political/{z}/{x}/{y}?query=' + query;
         map.addLayer({
             'id': 'choropleth',
             'type': 'fill',
