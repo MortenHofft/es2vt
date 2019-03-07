@@ -6,6 +6,7 @@
   <title>Add a vector tile source</title>
   <meta name='viewport' content='initial-scale=1,maximum-scale=1,user-scalable=no' />
   <script src='https://api.tiles.mapbox.com/mapbox-gl-js/v0.53.1/mapbox-gl.js'></script>
+  <script src='https://cdnjs.cloudflare.com/ajax/libs/axios/0.18.0/axios.min.js'></script>
   <link href='https://api.tiles.mapbox.com/mapbox-gl-js/v0.53.1/mapbox-gl.css' rel='stylesheet' />
   <style>
     body {
@@ -26,6 +27,43 @@
 
   <div id='map'></div>
   <script>
+
+    var countsQuery = {
+      "size": 0,
+      "aggs": {
+        "NRM_Regions_2014": {
+          "nested": {
+            "path": "australiaSpatialLayers"
+          },
+          "aggs": {
+            "nrm_filter": {
+              "filter": {
+                "terms": {
+                  "australiaSpatialLayers.key": [
+                    "cl2111"
+                  ]
+                }
+              },
+              "aggs": {
+                "nrm_values": {
+                  "terms": {
+                    "field": "australiaSpatialLayers.value.keyword",
+                    "size": 9999
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    };
+    axios.post('http://c6n1.gbif.org:9200/occurrence/_search', countsQuery)
+      .then(function (response) {
+        console.log(response.data.aggregations.NRM_Regions_2014.nrm_filter.nrm_values.buckets);
+      })
+      .catch(function (error) {
+        console.log(error);
+      });
     mapboxgl.accessToken = 'pk.eyJ1IjoiaG9mZnQiLCJhIjoiY2llaGNtaGRiMDAxeHNxbThnNDV6MG95OSJ9.p6Dj5S7iN-Mmxic6Z03BEA';
     var map = new mapboxgl.Map({
       container: 'map',
@@ -42,14 +80,14 @@
         "source": {
           type: 'vector',
           tiles: [
-            'https://nectar-spatial-staging.ala.org.au/geoserver/ALA/wms?service=WMS&version=1.1.0&request=GetMap&layers=ALA:landuse&styles=&bbox={bbox-epsg-3857}&width=512&height=512&srs=EPSG:3857&format=application%2Fx-protobuf%3Btype%3Dmapbox-vector',
+            'https://nectar-spatial-staging.ala.org.au/geoserver/ALA/wms?service=WMS&version=1.1.0&request=GetMap&layers=ALA:nrm2014&styles=&bbox={bbox-epsg-3857}&width=512&height=512&srs=EPSG:3857&format=application%2Fx-protobuf%3Btype%3Dmapbox-vector',
             // 'https://nectar-spatial-staging.ala.org.au/geoserver/ALA/wms?service=WMS&version=1.1.0&request=GetMap&layers=ALA:1547165456751&styles=&bbox={bbox-epsg-3857}&width=512&height=512&srs=EPSG:3857&format=application%2Fx-protobuf%3Btype%3Dmapbox-vector',
             //'https://spatial.ala.org.au/geoserver/ALA/wms?service=WMS&version=1.1.0&request=GetMap&layers=ALA:landuse&styles=&bbox={bbox-epsg-3857}&width=256&height=256&srs=EPSG:3857&format=image%2Fpng',
             //'https://geodata.state.nj.us/imagerywms/Natural2015?bbox={bbox-epsg-4283}&format=image/png&service=WMS&version=1.1.1&request=GetMap&srs=EPSG:3857&transparent=true&width=256&height=256&layers=Natural2015'
           ],
           tileSize: 512
         },
-        "source-layer": "landuse",
+        "source-layer": "nrm2014",
         // "layout": {
         //   "line-join": "round",
         //   "line-cap": "round"
